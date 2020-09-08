@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS 大话Navigation</title>
+    <style type="text/css" media="all">
+      body {
+        margin: 0;
+        font-family: "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", sans-serif;
+        font-size: 14px;
+        line-height: 20px;
+        color: #777;
+        background-color: white;
+      }
+      .container {
+        width: 700px;
+        margin-right: auto;
+        margin-left: auto;
+      }
+
+      .post {
+        font-family: Georgia, "Times New Roman", Times, "SimSun", serif;
+        position: relative;
+        padding: 70px;
+        bottom: 0;
+        overflow-y: auto;
+        font-size: 16px;
+        font-weight: normal;
+        line-height: 25px;
+        color: #515151;
+      }
+
+      .post h1{
+        font-size: 50px;
+        font-weight: 500;
+        line-height: 60px;
+        margin-bottom: 40px;
+        color: inherit;
+      }
+
+      .post p {
+        margin: 0 0 35px 0;
+      }
+
+      .post img {
+        border: 1px solid #D9D9D9;
+      }
+
+      .post a {
+        color: #28A1C5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="post">
+        <h1 class="title">iOS 大话Navigation</h1>
+        <div class="show-content">
+          <hr><h3>修改系统导航栏的返回按钮</h3><p>iOS开发中，navigation的返回按钮是英文“back”，想修改成中文“返回”或者自定义的文字；这么简单的事情却折腾了小半个小时。原来是被leftBarButtonItem和rightBarButtonItem的设置方法给迷惑了。</p><p>我们设置leftBarButtonItem和rightBarButtonItem的时候都是在当前页面；而backBarButtonItem却是在父页面；所以需要在调用</p><blockquote><p>[self.navigationController  pushViewController:photoController  animated:YES];<br></p></blockquote><p>之前执行；代码如下：</p><blockquote>
+<p>self.navigationItem.backBarButtonItem=[[UIBarButtonItem  alloc]  initWithTitle:@”返回“style:UIBarButtonItemStyleBordered  target:nil  action:nil]；<br></p>
+<p>[self.navigationController   pushViewController:photoController  animated:YES];<br></p>
+</blockquote><p>系统通常会默认上一页面的title为返回，其次如果设置backBarButtonItem,则会默认为backBarButtomItem,优先级最高的便是LeftBarButtomItem和RightBarButtomItem,优先级依次递增。</p><hr><h3><a href="http://blog.csdn.net/cx_wzp/article/details/47166601" target="_blank">IOS 去掉导航栏（UINavigationBar）下方的横线</a></h3><p><a href="http://blog.csdn.net/cx_wzp/article/details/47166601" target="_blank"></a>下图是要最终实现的效果：<br></p><div class="image-package">
+<img data-original-src="http://upload-images.jianshu.io/upload_images/1613923-ac710a73827673d7?imageMogr2/auto-orient/strip" src="http://upload-images.jianshu.io/upload_images/1613923-ac710a73827673d7?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br><div class="image-caption"></div>
+</div><p>但是，开始时会出现下图中箭头指向的横线效果：</p><div class="image-package">
+<img data-original-src="http://upload-images.jianshu.io/upload_images/1613923-91caf2e4da6c0823?imageMogr2/auto-orient/strip" src="http://upload-images.jianshu.io/upload_images/1613923-91caf2e4da6c0823?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br><div class="image-caption"></div>
+</div><p>这是导航栏的问题，将下边的代码放在viewWillAppear  方法中就可以实现效果：</p><blockquote>
+<p>- (void)viewWillAppear:(BOOL)animated{</p>
+<p>[superviewWillAppear:animated];</p>
+<p>//    self.automaticallyAdjustsScrollViewInsets = NO;</p>
+<p>// 透明状态栏的延伸</p>
+<p>//    self.edgesForExtendedLayout = UIRectEdgeNone;</p>
+<p>[self.navigationController.navigationBar setBackgroundImage:[UIImage new] forBarPosition:UIBarPositionAny   barMetrics:UIBarMetricsDefault];</p>
+<p>self.navigationController.navigationBar.shadowImage = [[UIImage alloc] init];</p>
+<p>self.navigationController.navigationBar.translucent = NO;</p>
+</blockquote><br><hr><h4>系统按钮</h4><p>除了图像与文字按钮，还有一个小型的系统按钮库，可以创建那些在许多应用程序中都可以见到的标准化的预定义按钮。系统按钮也是UIBarButtonItem对象，可以通过类的initWithBarButtonSystemItem方法来创建。如下例：</p><blockquote><p>UIBarButtonItem *myBookmarks = [ [ UIBarButtonItem alloc ] initWithBarButtonSystemItem: UIBarButtonSystemItemBookmarks  target: self action: @selector(mySelector:)];</p></blockquote><p>下是目前支持的系统按钮，可以在UIBarButtonItem.h头文件中找到。</p><p>按钮标识符<br></p><p>描    述</p><p>UIBarButtonSystemItemDone                     蓝色文字按钮，标有“Done”</p><p>UIBarButtonSystemItemCancel                   文字按钮，标有“Cancel”</p><p>UIBarButtonSystemItemEdit                        文字按钮，标有“Edit”</p><p>UIBarButtonSystemItemSave                       蓝色文字按钮，标有“Save”</p><p>UIBarButtonSystemItemAdd                        图像按钮，上面有一个Å符号</p><p>UIBarButtonSystemItemFlexibleSpace          空白，占用空间大小可变</p><p>UIBarButtonSystemItemFixedSpace             空白占位符</p><p>UIBarButtonSystemItemCompose                图像按钮，上有一支笔和纸张</p><p>UIBarButtonSystemItemReply                      图像按钮，上有一个回复箭头</p><p>UIBarButtonSystemItemAction                     图像按钮，上有一个动作箭头</p><p>UIBarButtonSystemItemOrganize                 图像按钮，上有一个文件夹以及向下箭头</p><p>UIBarButtonSystemItemBookmarks              图像按钮，上有书签图标</p><p>UIBarButtonSystemItemSearch                     图像按钮，上有spotlight图标</p><p>UIBarButtonSystemItemRefresh                    图像按钮，上有一个环形的刷新箭头</p><p>UIBarButtonSystemItemStop                         图像按钮，上有一个停止记号X</p><p>UIBarButtonSystemItemCamera                    图像按钮，上有一个照相机</p><p>UIBarButtonSystemItemTrash                       图像按钮，上有一个垃圾桶</p><p>UIBarButtonSystemItemPlay                          图像按钮，上有一个播放图标</p><p>UIBarButtonSystemItemPause                       图像按钮，上有一个暂停图标</p><p>UIBarButtonSystemItemRewind                     图像按钮，上有一个倒带图标</p><p>UIBarButtonSystemItemFastForward              图像按钮，上有一个快进图标</p><p>自定义视图按钮<br></p><p>与导航栏类似，按钮也可以按照自定义视图类来绘制，这样你就可以将任何一种其他类型的视图对象作为按钮来显示：</p><blockquote><p>UIBarButtonItem *customButton = [ [ UIBarButtonItem alloc ]   initWithCustomView: myView ];</p></blockquote><p>创建工具栏<br></p><p>将所有希望显示出来的按钮都添加到前面创建的buttons数组：</p><blockquote>
+<p>[ buttons addObject: buttonImage ];<br></p>
+<p>[ buttons addObject: buttonText ];</p>
+<p>[ buttons addObject: myBookmarks ];</p>
+</blockquote><p>下一步，创建一个UIToolbar对象，并将你的按钮数组赋予工具栏作为项目列表：</p><blockquote>
+<p>UIToolbar *toolbar = [ [ UIToolbar alloc ] init ];</p>
+<p>[ toolbar setItems: buttons animated: YES ];</p>
+</blockquote><p>最后，将你的导航栏的标题视图替换为新创建的工具栏，就像替换成分段控件一样：</p><blockquote><p>self.navigationItem.titleView = toolbar;</p></blockquote><p>当导航栏显示出来时，工具栏就会出现在它的中央。</p><p>调整大小</p><p>工具栏会对加入的按钮套用默认大小。如果你希望调整工具栏，让它可以更干净利落地适应导航栏的大小，可以用sizeToFit方法：</p><blockquote><p>[ toolbar sizeToFit ];</p></blockquote><p>工具栏的风格</p><p>就像许多其他基于视图的对象一样，UIToolbar也包含有一个风格属性，名为barStyle。这个属性可以用来调整工具栏的风格，令其与你为导航栏定义的风格相匹配：</p><blockquote><p>toolbar.barStyle = UIBarStyleDefault;</p></blockquote><p>可以将工具栏的风格设置为三种标准风格主题之一，这些主题也为大多数其他类型的栏状对象所使用</p><p><a href="https://m.baidu.com/from=1015143f/bd_page_type=1/ssid=0/uid=0/pu=usm@0,sz@1320_2001,ta@iphone_1_9.3_3_601/baiduid=C996C4613844E80B1811100800FE2310/w=0_10_iOS%E5%AF%BC%E8%88%AA%E6%A0%8F%E5%8F%B3%E4%BE%A7%E6%8C%89%E9%92%AE%E5%9B%BE%E6%A0%87%E6%9E%81%E5%85%B6%E5%AF%B9%E5%BA%94%E6%A0%B7%E5%BC%8F%E5%A4%A7%E5%85%A8/t=iphone/l=3/tc?fm=alop&amp;m=8&amp;ntc=1&amp;srd=1&amp;asres=1&amp;title=iOS%25u57FA%25u7840-%25u7CFB%25u7EDF%25u81EA%25u5E26%25u6309%25u94AE%25u6837%25u5F0F-UIBarButtonSystemItem&amp;dict=30&amp;tch=124.533.182.558.1.447&amp;eqid=bd74c7b1dacd90001000000657898188&amp;wd=&amp;clk_info=%257B%22%3Bsrcid=%22%3B%3A=%252C%252C%22%3Bwww_normal=%252C%22%3B%2C=%252C%22%3Btplname=%22%3Bt=%22%3B%3A1468629405226%2C=%22%3Bxpath=%22%3Bdiv-a-h3=%22%3B%7D=&amp;tcid=iqp33flu&amp;bdenc=1&amp;nsrc=IlPT2AEptyoA_yixCFOxXnANedT62v3IEQGG_yFZ0z3xokmyxP4kHREsRDb6NnTLJ5DhxWeCvB9ExXWe_71skNYWgK" target="_blank">iOS基础-系统自带按钮样式- UIBarButtonSystemItem</a></p><p>UIBarStyleDefault                        默认风格；灰色背景、白色文字</p><p>UIBarStyleBlackOpaque               纯黑色背景、白色文字</p><p>UIBarStyleBlackTranslucent         透明黑色背景、白色文字</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
